@@ -2,6 +2,8 @@ import express from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import cookieParser from 'cookie-parser';
+import crypto from 'crypto';
 
 import { routePrompt } from './router.js';
 import askOpenAI from './llmClients/openai.js';
@@ -16,9 +18,63 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.post('/api/route', async (req, res) => {
+const AUTH_PASSWORD = process.env.AUTH_PASSWORD || 'admin123';
+const SESSION_SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
+
+function requireAuth(req, res, next) {
+  const sessionToken = req.cookies.sessionToken;
+  
+  if (!sessionToken) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+  
+  try {
+    const expectedToken = crypto
+      .createHmac('sha256', SESSION_SECRET)
+      .update('authenticated')
+      .digest('hex');
+    
+    if (sessionToken !== expectedToken) {
+      return res.status(401).json({ error: 'Invalid session' });
+    }
+    
+    next();
+  } catch (err) {
+    return res.status(401).json({ error: 'Invalid session' });
+  }
+}
+
+app.post('/api/login', (req, res) => {
+  const { password } = req.body;
+  
+  if (!password || password !== AUTH_PASSWORD) {
+    return res.status(401).json({ error: 'Invalid password' });
+  }
+  
+  const sessionToken = crypto
+    .createHmac('sha256', SESSION_SECRET)
+    .update('authenticated')
+    .digest('hex');
+  
+  res.cookie('sessionToken', sessionToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  });
+  
+  res.json({ success: true });
+});
+
+app.post('/api/logout', (req, res) => {
+  res.clearCookie('sessionToken');
+  res.json({ success: true });
+});
+
+app.post('/api/route', requireAuth, async (req, res) => {
   try {
     const { prompt } = req.body;
     const route = await routePrompt(prompt);
@@ -29,7 +85,7 @@ app.post('/api/route', async (req, res) => {
   }
 });
 
-app.post('/api/ask', async (req, res) => {
+app.post('/api/ask', requireAuth, async (req, res) => {
   const { prompt, target } = req.body;
   console.log('Received target model:', JSON.stringify(target));
   try {
