@@ -38,11 +38,8 @@ app.post('/api/ask', async (req, res) => {
       case 'gpt-4o':
         answer = await askOpenAI(prompt, 'gpt-4o');
         break;
-      case 'o3-pro':
-        answer = await askOpenAI(prompt, 'o3-pro');
-        break;
-      case 'o3-mini':
-        answer = await askOpenAI(prompt, 'o3-mini');
+      case 'gpt-4o-mini':
+        answer = await askOpenAI(prompt, 'gpt-4o-mini');
         break;
       case 'claude-sonnet-4-20250514':
         answer = await askClaude(prompt, 'claude-sonnet-4-20250514');
