@@ -1,6 +1,8 @@
 # LLM Router JS Demo
 
 This project is a multi-model LLM router and demo web app. It routes user prompts to the best downstream LLM (OpenAI GPT-4o, Claude Sonnet, Gemini Flash, or Grok) and provides a clear rationale for its choice. The app also offers smart suggestions for building apps, websites, and multimedia content using external tools like Replit and Gamma.
+<img width="1220" height="1476" alt="Screenshot 2025-07-11 at 11 44 22 PM" src="https://github.com/user-attachments/assets/a26228dd-9842-4da5-8aad-1c4a9563933d" />
+
 
 ## Features & Capabilities
 
