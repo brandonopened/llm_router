@@ -19,11 +19,11 @@ Special rule: If the user wants to analyze multiple documents, make a podcast, s
 - Recommend signing in with a Google account and starting a new notebook to get started.
 
 Available downstream models:
-• gpt-4o         – balanced, broad, reliable
-• gpt-4o-mini    – fast, cost-effective, lightweight
-• claude-sonnet-4-20250514 – latest, high performance, general purpose
-• gemini-2-0-flash-exp – strong web reasoning & image analysis
-• grok-4         – excels at open-domain problem-solving & "think-aloud" answers
+• 🤖 gpt-4o         – balanced, broad, reliable
+• ⚡ gpt-4o-mini    – fast, cost-effective, lightweight
+• 🧠 claude-sonnet-4-20250514 – latest, high performance, general purpose
+• 🔍 gemini-2-0-flash-exp – strong web reasoning & image analysis
+• 🚀 grok-4         – excels at open-domain problem-solving & "think-aloud" answers
 
 Output **exactly** this JSON schema (no markdown):
 

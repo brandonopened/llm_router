@@ -74,40 +74,38 @@ passwordEl.addEventListener('keypress', (e) => {
 
 checkAuth();
 
+// Function to get icon for each model
+function getModelIcon(model) {
+  const icons = {
+    'gpt-4o': '🤖',
+    'gpt-4o-mini': '⚡',
+    'claude-sonnet-4-20250514': '🧠',
+    'gemini-2-0-flash-exp': '🔍',
+    'grok-4': '🚀'
+  };
+  return icons[model] || '🔮';
+}
+
 sendBtn.addEventListener('click', async () => {
   const prompt = promptEl.value.trim();
   if (!prompt) return;
   result.innerHTML = '<p>⏳ Routing…</p>';
   try {
-    const routeResponse = await fetch('/api/route', {
+    const route = await fetch('/api/route', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt })
-    });
+    }).then(r => r.json());
 
-    if (routeResponse.status === 401) {
-      showLoginForm();
-      return;
-    }
-
-    const route = await routeResponse.json();
-
-    const answerResponse = await fetch('/api/ask', {
+    const answerRes = await fetch('/api/ask', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt, target: route.target_model })
-    });
-
-    if (answerResponse.status === 401) {
-      showLoginForm();
-      return;
-    }
-
-    const answerRes = await answerResponse.json();
+    }).then(r => r.json());
 
     // Prettify router decision
     let decisionText = '';
-    decisionText += `<strong>Model:</strong> ${route.target_model}<br/>`;
+    decisionText += `<strong>Model:</strong> ${getModelIcon(route.target_model)} ${route.target_model}<br/>`;
     decisionText += `<strong>Confidence:</strong> ${route.confidence}<br/>`;
     if (route.reasoning) decisionText += `<strong>Reasoning:</strong> ${route.reasoning}<br/>`;
     if (route.notes) decisionText += `<strong>Notes:</strong> ${route.notes}<br/>`;
@@ -126,7 +124,7 @@ sendBtn.addEventListener('click', async () => {
         <div style="font-size:1.08rem;line-height:1.7;">${decisionText}</div>
       </div>
       <div class="column">
-        <h3>🔮 ${route.target_model} response</h3>
+        <h3>${getModelIcon(route.target_model)} ${route.target_model} response</h3>
         <div style="font-size:1.08rem;line-height:1.7;">${responseText}</div>
       </div>
     `;
